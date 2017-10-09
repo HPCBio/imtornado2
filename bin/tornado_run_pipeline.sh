@@ -106,6 +106,16 @@ isitthere ${PREFIX}_R1.fasta
 isitthere ${PREFIX}_R2.fasta
 isitthere ${PREFIX}.common.accnos
 
+#TODO For OTUing I need to keep only the reads in _R1.fasta and
+#_R2.fasta that have the exact length required
+#by $R1_TRIM and $R2_TRIM.
+#This way, only the very good reads are considered for
+#defining the OTU centers.
+#Otherwise, all this trimming is for nothing.
+#I will have to python it
+tornado_keep_reads_of_length.py $R1_TRIM ${PREFIX}_R1.fasta ${PREFIX}_R1.keep.fasta
+tornado_keep_reads_of_length.py $R2_TRIM ${PREFIX}_R2.fasta ${PREFIX}_R2.keep.fasta
+
 #Concatenate paired reads. This is only used for R1+R2 OTUing.
 #First, pick out the common ids
 echo "Pick common ids..."
@@ -124,6 +134,10 @@ echo "Concatenate read pairs"
 paste -d 'N' ${PREFIX}_R1.common.flat.fasta ${PREFIX}_R2.common.flat.fasta | awk 'NR%2 ==0; NR%2 ==1 {sub(/N>.*/,""); print}' > ${PREFIX}.padded.fasta
 awk 'NR%2 == 1; NR%2 == 0 {sub(/N/,""); print}' ${PREFIX}.padded.fasta > ${PREFIX}_paired.fasta
 
+tornado_keep_reads_of_length.py $[R1_TRIM + R2_TRIM] ${PREFIX}_paired.fasta ${PREFIX}_paired.keep.fasta
+
+tornado_keep_reads_of_length.py $[1 + R1_TRIM + R2_TRIM] ${PREFIX}.padded.fasta ${PREFIX}_padded.keep.fasta
+
 #calculate overall taxonomy if consensus is set
 if [[ $CONSENSUS_TAXONOMY == "1" ]]
   then
@@ -139,15 +153,15 @@ fi
 if [[ -n $VSEARCH ]]
 then
 
-  $VSEARCH -derep_fulllength ${PREFIX}_R1.fasta -output ${PREFIX}_R1.derep.fasta -sizeout
-  $VSEARCH -derep_fulllength ${PREFIX}_R2.fasta -output ${PREFIX}_R2.derep.fasta -sizeout
-  $VSEARCH -derep_fulllength ${PREFIX}_paired.fasta -output ${PREFIX}_paired.derep.fasta -sizeout
+  $VSEARCH -derep_fulllength ${PREFIX}_R1.keep.fasta -output ${PREFIX}_R1.derep.fasta -sizeout
+  $VSEARCH -derep_fulllength ${PREFIX}_R2.keep.fasta -output ${PREFIX}_R2.derep.fasta -sizeout
+  $VSEARCH -derep_fulllength ${PREFIX}_paired.keep.fasta -output ${PREFIX}_paired.derep.fasta -sizeout
 
 else
   #use mothur for this for now
-  mothur "#unique.seqs(fasta=${PREFIX}_R1.fasta)"
-  mothur "#unique.seqs(fasta=${PREFIX}_R2.fasta)"
-  mothur "#unique.seqs(fasta=${PREFIX}_paired.fasta)"
+  mothur "#unique.seqs(fasta=${PREFIX}_R1.keep.fasta)"
+  mothur "#unique.seqs(fasta=${PREFIX}_R2.keep.fasta)"
+  mothur "#unique.seqs(fasta=${PREFIX}_paired.keep.fasta)"
 
   #get the "counts" .. returns PREFIX_R?.seq.count
   mothur "#count.seqs(name=${PREFIX}_R1.names)"
@@ -159,13 +173,13 @@ else
   echo "Annotating unique sizes..."
   echo "R1..."
 
-  tornado_annotate_read_sizes.py $R1_TRIM ${PREFIX}_R1.unique.fasta ${PREFIX}_R1.count_table ${PREFIX}_R1.derep.fasta
+  tornado_annotate_read_sizes.py $R1_TRIM ${PREFIX}_R1.keep.unique.fasta ${PREFIX}_R1.count_table ${PREFIX}_R1.derep.fasta
   echo "R2..."
 
-  tornado_annotate_read_sizes.py $R2_TRIM ${PREFIX}_R2.unique.fasta ${PREFIX}_R2.count_table ${PREFIX}_R2.derep.fasta
+  tornado_annotate_read_sizes.py $R2_TRIM ${PREFIX}_R2.keep.unique.fasta ${PREFIX}_R2.count_table ${PREFIX}_R2.derep.fasta
   echo "Paired..."
 
-  tornado_annotate_read_sizes.py $[R1_TRIM + R2_TRIM] ${PREFIX}_paired.unique.fasta ${PREFIX}_paired.count_table ${PREFIX}_paired.derep.fasta
+  tornado_annotate_read_sizes.py $[R1_TRIM + R2_TRIM] ${PREFIX}_paired.keep.unique.fasta ${PREFIX}_paired.count_table ${PREFIX}_paired.derep.fasta
 
 fi
 
