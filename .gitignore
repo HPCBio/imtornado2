@@ -5,3 +5,6 @@
 *.sum
 *.numNonZero
 *.bak
+data/*.8mer*
+data/*.sum
+data/*.train
