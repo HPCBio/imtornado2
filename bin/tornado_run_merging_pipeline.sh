@@ -163,7 +163,7 @@ tornado_overlap_score_filter.py ${PREFIX}_M.scores bad_align_M.accnos
 #convert all lowercase bases to uppercase
 awk '{print (substr($0,0,1) == ">")? $0 : toupper($0)}' ${PREFIX}_M.otus3.fasta > ${PREFIX}_M.otus4.fasta
 
-#remove them from the OTU file 
+#remove them from the OTU file
 tornado_read_remover.py bad_align_M.accnos ${PREFIX}_M.otus4.fasta ${PREFIX}_M.otus.final.fasta
 
 #copy the final OTUs into the results file
@@ -199,8 +199,8 @@ if [[ -n $VSEARCH ]]
 then
   $VSEARCH --threads $NPROC --usearch_global ${PREFIX}_M.fasta --db ${PREFIX}_M.otus.final.fasta --strand plus --id 0.97 --uc ${PREFIX}_M.uc $VSEARCH_OPTS
 else
-  #split the fasta into 1 GB chunks, 
-  gt splitfasta -targetsize 1000 ${PREFIX}_M.fasta
+  #split the fasta into 1 GB chunks,
+  gt splitfasta -force -targetsize 1000 ${PREFIX}_M.fasta
   #how many we have?
   COUNT=$(ls ${PREFIX}_M.fasta.*|wc -l)
   for i in $(seq $COUNT)
@@ -257,7 +257,7 @@ cp ${PREFIX}*otus.txt ../$RESULTS
 #compress clean reads
 $GZIP ${PREFIX}_M.fasta
 #and move them to the results area
-mv ${PREFIX}_M.fasta ../$RESULTS
+mv ${PREFIX}_M.fasta.gz ../$RESULTS
 
 echo "Copy results"
 #and copy the bioms into the results file
@@ -276,9 +276,9 @@ cd ..
 rm -rf $WORKSPACE
 elif [ $CLEAN = 'normal' ]
 then
-mv ${PREFIX}_M.fasta ${PREFIX}_M.fasta.save
+mv ${PREFIX}_M.fasta.gz ${PREFIX}_M.fasta.save.gz
 rm -f *.fasta *.fasta.[0-9]* *.uc *.uc.* *.cfastq *accnos *biom *groups *logfile *map *scores *stk *summary *taxonomy *tree *txt *names *count_table
-mv ${PREFIX}_M.fasta.save ${PREFIX}_M.fasta
+mv ${PREFIX}_M.fasta.save.gz ${PREFIX}_M.fasta.gz
 elif [ $CLEAN = 'no' ]
 then
 echo "No cleanup performed."
