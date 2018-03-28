@@ -27,19 +27,19 @@ R2_TRIM=200
 #Assignments are not reliable below genus level.
 #For other taxonomies, download them from the mothur website.
 #See the INSTALL.md document for instructions.
-#NAme files as TAXONOMY.fna and TAXONOMY.taxonomy,
+#Name files as TAXONOMY.fna and TAXONOMY.taxonomy,
 #where TAXONOMY is defined below
-TAXONOMY=rdp9
+TAXONOMY=rdp10
 
 #Taxonomy cutoffs
 #When classifying the reads, mothur has a cutoff for the
 #probability at that the assignment at that level is correct.
 #If below the cutoff, mothur will report that assignment as "unclassified"
 #at that particular level.
-#mothur default is 0 (from a range from 0 to 100). 
+#mothur default is 0 (from a range from 0 to 100).
 TAXCUTOFF=0
 
-#Set this to 1 if you wish to run consensus taxonomy 
+#Set this to 1 if you wish to run consensus taxonomy
 #instead of taxonomy of the OTU representative.
 #Not tested extensively.
 #This will take significantly longer, and will use considerable more resources.
@@ -56,8 +56,8 @@ WORKSPACE=workspace/
 #Directory to place resulting files.
 RESULTS=results/
 
-#Maximum number of processors to be requested. biocluster has a maximum of 8.
-NPROC=4
+#Maximum number of processors to be requested. biocluster has a maximum of 24
+NPROC=24
 
 #Spacer for the sample name in the sample file.
 #Common spacers are '.' and '_'
@@ -90,12 +90,12 @@ VSEARCH_OPTS=
 FASTTREE=FastTreeMP
 
 #PATH to Trimmomatic jar file
-TRIMMOMATIC=/path/to/trimmomatic-0.32.jar
+TRIMMOMATIC=/home/apps/software/Trimmomatic/0.36-Java-1.8.0_121/trimmomatic-0.36.jar
 
 #Name of the GZip executable. If you have pigz (parallel gzip), enter it here.
 #For example: GZIP="pigz -p $NPROC"
-GZIP=gz
+GZIP="pigz -p $NPROC"
 
 #Advanced settings. Do not modify unless you know what you are doing.
-TORNADO2=/path/to/IM-TORNADO-2.0.3.3
+TORNADO2=/home/groups/hpcbio/apps/IM-TORNADO/IM-TORNADO-HPCBio
 DATA=$TORNADO2/data
